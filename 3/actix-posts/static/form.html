@@ -1,0 +1,9 @@
+<form method="POST" action="/posts/{{action}}">
+    <div><label for="sender">名前：</label><br />
+        <input type="text" id="sender" name="sender" size="20" value="{{sender}}" required /></div>
+    <div><label for="content">内容：</label><br />
+        <textarea id="content" name="content">{{content}}</textarea></div>
+    <div><button type="submit">{{button}}</button>&nbsp;<a href="/posts">一覧へ</a></div>
+    <input type="hidden" id="id" name="id" value="{{id}}" />
+    <input type="hidden" id="posted" name="posted" value="{{posted}}" />
+</form>
