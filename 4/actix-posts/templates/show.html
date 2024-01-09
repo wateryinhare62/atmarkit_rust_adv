@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+    {% if post.id == 0 %}
+        <div class="alert alert-danger">見つかりません。</div>
+    {% else %}
+        {% include "item.html" %}
+        <div class="mb-3">
+            <a class="btn btn-primary" href="/posts/{{post.id}}/edit">編集</a>&nbsp;
+            <a class="btn btn-danger" href="/posts/{{post.id}}/delete">削除</a>
+        </div>
+    {% endif %}
+    <div><a href="/posts">一覧へ</a></div>
+{% endblock content %}
