@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% macro label(label, for) %}
+    <label class="form-label" for="{{for}}">{{label}}</label>
+{% endmacro label %}
+{% block content %}
+    <form method="POST" action="/posts/{{action}}">
+        <div class="mb-3">{{ self::label(label="名前", for="sender") }}<br />
+            <input type="text" class="form-control" id="sender" name="sender" size="20" value="{{post.sender}}" placeholder="名前を入力（必須）" required /></div>
+        <div class="mb-3">{{ self::label(label="内容", for="content") }}<br />
+            <textarea class="form-control" id="content" name="content" rows="5">{{post.content}}</textarea></div>
+        <div><button class="btn btn-primary" type="submit">{{button}}</button>&nbsp;
+            <a href="/posts">一覧へ</a></div>
+        <input type="hidden" id="id" name="id" value="{{post.id}}" />
+        <input type="hidden" id="posted" name="posted" value="{{post.posted}}" />
+    </form>
+{% endblock content %}
