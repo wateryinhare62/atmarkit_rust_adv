@@ -1,0 +1,7 @@
+<div class="card mb-3">
+    <div class="card-header">{{post.sender}} {{post.posted}}</div>
+    <div class="card-body">
+        <p class="card-text">{{post.content|linebreaksbr|safe}}</p>
+    </div>
+    <a href="/posts/{{post.id}}" class="stretched-link"></a>
+</div>
