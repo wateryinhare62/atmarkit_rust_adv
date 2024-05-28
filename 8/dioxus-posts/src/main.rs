@@ -1,99 +1,54 @@
+#![allow(non_snake_case)]
+
 use dioxus::prelude::*;
-use log::info;
+use tracing::Level;
 
 mod data;
-use data::{Message, ResponseContent};
+use data::{ResponseContent};
 
 fn main() {
-    dioxus_logger::init(log::LevelFilter::Info).unwrap();
-    dioxus_web::launch(App);
+    // Init logger
+    dioxus_logger::init(Level::INFO).expect("failed to init logger");
+    launch(App);
 }
 
-type Posts = im_rc::HashMap<i32, Message>;
-
 #[component]
-fn App(cx: Scope) -> Element {
-    //info!("Called App");
-    //cx.render(
-    //    rsx! {
-    //        div { "Hello, World!!" }
-    //    }
-    //)
-    let posts_source = use_future(cx, (), |_| data::call_index());
-    let posts = use_ref(cx, Posts::default);
+fn App() -> Element {
+    // Build cool things ✌️
 
-    cx.render(
-        match posts_source.value() {
+    /*rsx! {
+        link { rel: "stylesheet", href: "main.css" }
+        img { src: "header.svg", id: "header" }
+        div { id: "links",
+            a { target: "_blank", href: "https://dioxuslabs.com/learn/0.5/", "📚 Learn Dioxus" }
+            a { target: "_blank", href: "https://dioxuslabs.com/awesome", "🚀 Awesome Dioxus" }
+            a { target: "_blank", href: "https://github.com/dioxus-community/", "📡 Community Libraries" }
+            a { target: "_blank", href: "https://github.com/DioxusLabs/dioxus-std", "⚙️ Dioxus Standard Library" }
+            a { target: "_blank", href: "https://marketplace.visualstudio.com/items?itemName=DioxusLabs.dioxus", "💫 VSCode Extension" }
+            a { target: "_blank", href: "https://discord.gg/XgGxMSkvUM", "👋 Community Discord" }
+        }
+    }*/
+    let posts_source = use_resource(|| data::call_index());
+
+    rsx! {
+        match &*posts_source.read_unchecked() {
             Some(Ok(res)) => {
-                if posts.read().is_empty() {
-                    match &res.result {
-                        ResponseContent::Items(items) => {
+                match &res.result {
+                    ResponseContent::Items(items) => {
+                        rsx! {
                             for item in items {
-                                posts.write().insert(item.id, 
-                                    Message {
-                                        id: item.id,
-                                        posted: item.posted.clone(),
-                                        sender: item.sender.clone(),
-                                        content: item.content.clone(),
-                                    }
-                                );
+                                {rsx! { div { "{serde_json::to_string(&item).unwrap()}" } }}
                             }
-                            rsx! { div { "データ読み込みを終了しました" } }
-                        },
-                        ResponseContent::Item(item) =>
-                            rsx!{ div { "{serde_json::to_string(&item).unwrap()}" } },
-                        ResponseContent::Reason(reason) => rsx!{ div { "{reason}" } },
-                        ResponseContent::None => rsx!{ div {} },
-                    }
-                } else {
-                    //rsx! { div { "ここに投稿データを表示します" } }
-                    let mut filtered_posts = posts.read()
-                        .iter()
-                        .map(|f| *f.0)
-                        .collect::<Vec<_>>();
-                    filtered_posts.sort_unstable_by(|a, b| b.cmp(a));
-                    rsx! {
-                        filtered_posts.iter().map(|id| 
-                            rsx!(PostEntry { 
-                                id: *id, 
-                                set_posts: posts 
-                            })
-                        )
-                    }
+                        }
+                    },
+                    ResponseContent::Item(item) =>
+                        rsx! { div { "{serde_json::to_string(&item).unwrap()}" } },
+                    ResponseContent::Reason(reason) => rsx! { div { "{reason}" } },
+                    ResponseContent::None => rsx! { div {} },
                 }
             },
             Some(Err(err)) => rsx! { div { "初期データの読み込みに失敗しました：{err}" } },
             None => rsx! { div { "データを読み込んでいます..." } }
         }
-    )
+    }
 }
-
-#[derive(Props)]
-struct PostEntryProps<'a> {
-    set_posts: &'a UseRef<Posts>,
-    id: i32,
-}
-
-#[component]
-fn PostEntry<'a>(cx: Scope<'a, PostEntryProps<'a>>) -> Element {
-    let posts = cx.props.set_posts.read();
-    let post = &posts[&cx.props.id];
-
-    render!(div {
-        class: "card mb-3",
-        div {
-            div {
-                class: "card-header",
-                "{post.sender} {post.posted}"
-            }
-            div {
-                class: "card-body",
-                p {
-                    class: "card-text",
-                    "{post.content}"
-                }
-            }
-        }
-    })
-}
-
