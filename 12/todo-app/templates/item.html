@@ -1,0 +1,12 @@
+<div id="task{{item.id}}" class="d-flex w-100 border border-1 rounded mb-2">
+    <input type="hidden" value="{{item.id}}" />
+    <div class="border p-2">
+        {% if item.completed %}
+        <input type="checkbox" checked />
+        {% else %}
+        <input type="checkbox" />
+        {% endif %}
+    </div>
+    <div class="flex-grow-1 border p-2">{{item.title}}</div>
+    <div class="border p-2">{{item.period}}</div>
+</div>
